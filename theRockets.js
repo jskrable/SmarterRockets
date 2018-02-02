@@ -65,7 +65,7 @@ function Rocket(dna) {
 	this.update = function() {
 		var location = dist(this.position.x, this.position.y, target.x, target.y);
 		//stop the rocket if we hit the target
-		if (location < 1) {//within the box range
+		if (location < 16) {//within the box range
 			this.touching = true;
 			this.position = target.copy();//setting the rocket at the target
 		}
@@ -169,6 +169,7 @@ function Population() {
 			var parentOne = random(this.matingPool).dna;//allowed via p5 library, picks random index for us given array
 			var parentTwo = random(this.matingPool).dna;//does not account for the parents being the same**
 			var child = parentOne.mating(parentTwo);//lets make a baby/child
+			child.mutation();//adds in variability
 			babyRockets[i] = new Rocket(child);//new rocket is born
 		}
 		this.rockets = babyRockets;//we have a new generation set
@@ -203,6 +204,16 @@ function DNA(genes) {
 
 		}
 		return new DNA(childDNA);
+	}
+	//allows for some variability rather than just the first generation genes
+	this.mutation = function() {
+		for (var i = 0; i < this.genes.length; i++) {
+			if (random(1) < 0.01) {//random number with mutation rate of 1%
+				this.genes[i] = p5.Vector.random2D();//becomes new Random vector
+				this.genes[i].setMag(0.1); //length of vector
+			}
+			
+		}
 	}
 }
 
