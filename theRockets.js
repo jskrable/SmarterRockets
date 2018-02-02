@@ -13,7 +13,7 @@ function setup() {
 	rocket = new Rocket();
 	population = new Population();
 	lifeP = createP();//paragraph ele
-	target = createVector(width/2, 50);//middle of the window at the top
+	target = createVector(width/2, 35);//middle of the window at the top
 }
 
 function draw() {
@@ -26,23 +26,29 @@ function draw() {
 	count++;
 
 	if (count == rocketLifeSpan) {
-
+		//make 
+		population.eval();
+		population.natSelection();
+		count = 0;//reset val
 	}
 
 	//drawing the target to hit
-	ellipse(target.x, target.y, 16, 16);
+	rect(target.x, target.y, 16, 16);
 
 }
 
 //Rocket Object
-function Rocket() {
+function Rocket(dna) {
+	if (dna) {
+		this.dna = dna;//existing dna
+	} else {
+		this.dna = new DNA();//new DNA property
+	}
 	//constructors
 	this.position = createVector(width/2, height);//starting at bottom of window
 	this.velocity = createVector();// no velocity
 	this.acceleration = createVector();//no acceleration
-	this.dna = new DNA();//DNA property
 	this.fitness = 0;//fitness score
-
 
 	//adding force
 	this.applyForce = function(force) {
@@ -66,7 +72,7 @@ function Rocket() {
 		rect(0, 0, 20, 5);//draw the rocket
 		pop();
 	}
-	//genetic algo p2
+	//genetic algo p1.2
 	//fitness scoring
 	this.getFitness = function() {
 		//closer to target == better fitness
@@ -104,19 +110,23 @@ function Population() {
 		//go through each rocket
 		//for normalizing (to 1)
 		for (var r = 0; r < this.populationSize; r++) {
-			this.rockets[r].fitness /= maximumFitness;
+			if (maximumFitness != 0) {
+				this.rockets[r].fitness /= maximumFitness;
+			}			
 			
 		}
-		//genetic algo p1.2
+		//genetic algo p2
 		//array for each generation of mates
 		this.matingPool = [];
 		//stores values that are desirable ie better fitness score for the mating pool
 		for (var r = 0; r < this.populationSize; r++) {
-			var n = this.rockets[r].fitness * 100;//getting the values between 0-100
-			for (var s = 0; s < n; s++) {
-				this.matingPool.add(this.rockets[r]);
-			}
-			
+			if (this.rockets[r].fitness > 0) {
+				var n = this.rockets[r].fitness * 100;//getting the values between 0-100
+				//add values to the mating pool
+				for (var s = 0; s < n; s++) {
+					this.matingPool.push(this.rockets[r]);
+				}				
+			}			
 			
 		}
 	}
@@ -128,14 +138,48 @@ function Population() {
 			this.rockets[r].show();
 		}
 	}
+
+	//selecting function ie natural selection
+	this.natSelection = function() {
+		var babyRockets = [];
+		for (var i = 0; i < this.rockets.length; i++) {
+			var parentOne = random(this.matingPool).dna;//allowed via p5 library, picks random index for us given array
+			var parentTwo = random(this.matingPool).dna;//does not account for the parents being the same**
+			var child = parentOne.mating(parentTwo);//lets make a baby/child
+			babyRockets[i] = new Rocket(child);//new rocket is born
+		}
+		this.rockets = babyRockets;//we have a new generation set
+	}	
 }
 
 //DNA Object
-function DNA() {
-	this.genes = [];
-	for (var i = 0; i < rocketLifeSpan; i++) {
-		this.genes[i] = p5.Vector.random2D();//random vector
-		this.genes[i].setMag(.1);//speed
+function DNA(genes) {
+	if (genes) {//if we receive existing genes, use that
+		this.genes = genes;
+	} else {
+		//always generate random DNA
+		this.genes = [];
+		for (var i = 0; i < rocketLifeSpan; i++) {
+			this.genes[i] = p5.Vector.random2D();//random vector
+			this.genes[i].setMag(.1);//speed
+		}
+	}
+
+	this.mating = function(mate) {
+		var childDNA = [];
+		//randomly select via p5 library
+		//a point that is somewhere in the middle
+		var midPoint = floor(random(this.genes.length));
+		//create new / overwrite DNA with parents
+		for (var i = 0; i < this.genes.length; i++) {
+			if (i > midPoint) {
+				childDNA[i] = this.genes[i];
+			} else {
+				childDNA[i] = mate.genes[i];
+			}
+
+		}
+		return new DNA(childDNA);
 	}
 }
 
