@@ -1,6 +1,6 @@
 var rocket;
-var rocketLifeSpan = 500;//number of frames
-var numRockets = 100;
+var rocketLifeSpan = 100;//number of frames
+var numRockets = 1000;
 //population life
 var lifeP;
 //rocket count
@@ -9,6 +9,9 @@ var count = 0;
 var target;
 //genearation counter
 var generationCnt = 0;
+//obstacle dimensions
+var obstacleX,obstacleY,obstacleW,obstacleH;
+obstacleX = 100;obstacleY = 150;obstacleW = 200;obstacleH = 10;
 
 function setup() {
 	createCanvas(400, 300);
@@ -34,7 +37,8 @@ function draw() {
 		count = 0;//reset val
 
 	}
-
+	//obstacle creation
+	rect(obstacleX, obstacleY, obstacleW, obstacleH);
 	//drawing the target to hit
 	rect(target.x, target.y, 16, 16);
 
@@ -56,6 +60,8 @@ function Rocket(dna) {
 
 	//explosion detector!
 	this.touching = false;
+	//collision detector
+	this.collision = false;
 
 	//adding force
 	this.applyForce = function(force) {
@@ -73,7 +79,7 @@ function Rocket(dna) {
 		//apply vectors
 		this.applyForce(this.dna.genes[count]);	
 		//check if we hit target
-		if (!this.touching) {//if not, apply movement
+		if (!this.touching && !this.collision) {//if not, apply movement
 			this.velocity.add(this.acceleration);
 			this.position.add(this.velocity);
 			this.acceleration.mult(1);
@@ -81,6 +87,16 @@ function Rocket(dna) {
 		//just rewarding the fit rockets
 		if (this.touching) {
 			this.fitness *= 500;//boost fitness scores
+		}
+		if (this.collision) {
+			this.fitness = 1;
+		}
+
+		//hitting obstacle is bad aka crashing
+		if (this.position.x > obstacleX && this.position.x < obstacleX + obstacleW/**width of obstacle**/
+			&& this.position.y > obstacleY && this.position.y < obstacleY + obstacleH/**height of obstacle**/
+			) {
+			this.collision = true;
 		}
 
 	}
@@ -101,6 +117,8 @@ function Rocket(dna) {
 		//1 == best fitness score possible i.e. we hit the target
 		// this.fitness = (1 / distance);
 		this.fitness = map(distance, 0, width, width, 0);//mapping the distance, inverted distance val
+
+		//TODO add in time it takes to get to target
 	}
 }
 
