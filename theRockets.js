@@ -76,11 +76,11 @@ function Rocket(dna) {
 		if (!this.touching) {//if not, apply movement
 			this.velocity.add(this.acceleration);
 			this.position.add(this.velocity);
-			this.acceleration.mult(0);
+			this.acceleration.mult(1);
 		}
-
+		//just rewarding the fit rockets
 		if (this.touching) {
-			this.fitness *= 500;
+			this.fitness *= 500;//boost fitness scores
 		}
 
 	}
@@ -90,7 +90,7 @@ function Rocket(dna) {
 		translate(this.position.x, this.position.y);
 		rotate(this.velocity.heading());//angle adjustments
 		rectMode(CENTER);
-		rect(0, 0, 20, 5);//draw the rocket
+		rect(5, 5, 5, 5);//draw the rocket
 		pop();
 	}
 	//genetic algo p1.2
@@ -109,7 +109,8 @@ function Population() {
 	//array of rockets
 	this.rockets = [];
 	this.populationSize = numRockets;
-
+	//array for each generation of mates
+	this.matingPool = [];
 	//making tons of rockets
 	for (var r = 0; r < this.populationSize; r++) {
 		this.rockets[r] = new Rocket();
@@ -137,8 +138,7 @@ function Population() {
 			
 		}
 		//genetic algo p2
-		//array for each generation of mates
-		this.matingPool = [];
+
 		//stores values that are desirable ie better fitness score for the mating pool
 		for (var r = 0; r < this.populationSize; r++) {
 			if (this.rockets[r].fitness > 0) {
