@@ -1,6 +1,8 @@
 var rocket;
 var rocketLifeSpan = 100;//number of frames
 var numRockets = 1000;
+var inherentSpeed = 0.1;
+var rocketAcceleration = 1;
 //population life
 var lifeP;
 //rocket count
@@ -82,20 +84,25 @@ function Rocket(dna) {
 		if (!this.touching && !this.collision) {//if not, apply movement
 			this.velocity.add(this.acceleration);
 			this.position.add(this.velocity);
-			this.acceleration.mult(1);
+			this.acceleration.mult(rocketAcceleration);
 		}
 		//just rewarding the fit rockets
 		if (this.touching) {
-			this.fitness *= 500;//boost fitness scores
+			this.fitness *= 50000;//boost fitness scores
 		}
 		if (this.collision) {
-			this.fitness = 1;
+			this.fitness /= 10;
 		}
 
 		//hitting obstacle is bad aka crashing
 		if (this.position.x > obstacleX && this.position.x < obstacleX + obstacleW/**width of obstacle**/
 			&& this.position.y > obstacleY && this.position.y < obstacleY + obstacleH/**height of obstacle**/
 			) {
+			this.collision = true;
+		}
+		//window collision detection
+		if ((this.position.x > width || this.position.x < 0) ||/**width**/
+			(this.position.y > height || this.position.y < 0)) {/**height**/
 			this.collision = true;
 		}
 
@@ -203,7 +210,7 @@ function DNA(genes) {
 		this.genes = [];
 		for (var i = 0; i < rocketLifeSpan; i++) {
 			this.genes[i] = p5.Vector.random2D();//random vector
-			this.genes[i].setMag(.1);//speed
+			this.genes[i].setMag(inherentSpeed);//speed
 		}
 	}
 
