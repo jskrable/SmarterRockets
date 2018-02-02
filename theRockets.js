@@ -25,6 +25,10 @@ function draw() {
 	lifeP.html(count);
 	count++;
 
+	if (count == rocketLifeSpan) {
+
+	}
+
 	//drawing the target to hit
 	ellipse(target.x, target.y, 16, 16);
 
@@ -36,7 +40,9 @@ function Rocket() {
 	this.position = createVector(width/2, height);//starting at bottom of window
 	this.velocity = createVector();// no velocity
 	this.acceleration = createVector();//no acceleration
-	this.dna = new DNA();
+	this.dna = new DNA();//DNA property
+	this.fitness = 0;//fitness score
+
 
 	//adding force
 	this.applyForce = function(force) {
@@ -60,6 +66,15 @@ function Rocket() {
 		rect(0, 0, 20, 5);//draw the rocket
 		pop();
 	}
+	//genetic algo p2
+	//fitness scoring
+	this.getFitness = function() {
+		//closer to target == better fitness
+		var distance = dist(this.position.x, this.position.y, target.x, target.y);
+		//1 == best fitness score possible i.e. we hit the target
+		// this.fitness = (1 / distance);
+		this.fitness = map(distance, 0, width, width, 0);//mapping the distance, inverted distance val
+	}
 }
 
 //Population Object
@@ -67,16 +82,50 @@ function Population() {
 	//array of rockets
 	this.rockets = [];
 	this.populationSize = numRockets;
+
 	//making tons of rockets
 	for (var r = 0; r < this.populationSize; r++) {
 		this.rockets[r] = new Rocket();
 	}
+	//runs through all rockets, to calc fitness
+	this.eval = function() {
+		var maximumFitness = 0;//the max fitness score out of all elements
+		//go through each rocket
+		for (var r = 0; r < this.populationSize; r++) {
+			this.rockets[r].getFitness();//gets each rocket fitness
+
+			//set the max fitness if it is the max
+			if (this.rockets[r].fitness > 0) {
+				maximumFitness = this.rockets[r].fitness	
+			}
+			
+		}
+		//genetic algo p1.1
+		//go through each rocket
+		//for normalizing (to 1)
+		for (var r = 0; r < this.populationSize; r++) {
+			this.rockets[r].fitness /= maximumFitness;
+			
+		}
+		//genetic algo p1.2
+		//array for each generation of mates
+		this.matingPool = [];
+		//stores values that are desirable ie better fitness score for the mating pool
+		for (var r = 0; r < this.populationSize; r++) {
+			var n = this.rockets[r].fitness * 100;//getting the values between 0-100
+			for (var s = 0; s < n; s++) {
+				this.matingPool.add(this.rockets[r]);
+			}
+			
+			
+		}
+	}
 
 	//run population
 	this.run = function() {
-		for (var i = 0; i < this.populationSize; i++) {
-			this.rockets[i].update();
-			this.rockets[i].show();
+		for (var r = 0; r < this.populationSize; r++) {
+			this.rockets[r].update();
+			this.rockets[r].show();
 		}
 	}
 }
@@ -86,6 +135,7 @@ function DNA() {
 	this.genes = [];
 	for (var i = 0; i < rocketLifeSpan; i++) {
 		this.genes[i] = p5.Vector.random2D();//random vector
-		this.genes[i].setMag(.1);
+		this.genes[i].setMag(.1);//speed
 	}
 }
+
