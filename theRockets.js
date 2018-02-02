@@ -1,5 +1,5 @@
 var rocket;
-var rocketLifeSpan = 200;
+var rocketLifeSpan = 500;//number of frames
 var numRockets = 100;
 //population life
 var lifeP;
@@ -7,6 +7,8 @@ var lifeP;
 var count = 0;
 //the thing we want to hit
 var target;
+//genearation counter
+var generationCnt = 0;
 
 function setup() {
 	createCanvas(400, 300);
@@ -22,7 +24,7 @@ function draw() {
 	rocket.show();
 	population.run();
 	//count of each generation
-	lifeP.html(count);
+	lifeP.html(count);//displays each rocket count
 	count++;
 
 	if (count == rocketLifeSpan) {
@@ -30,10 +32,12 @@ function draw() {
 		population.eval();
 		population.natSelection();
 		count = 0;//reset val
+
 	}
 
 	//drawing the target to hit
 	rect(target.x, target.y, 16, 16);
+
 
 }
 
@@ -50,17 +54,34 @@ function Rocket(dna) {
 	this.acceleration = createVector();//no acceleration
 	this.fitness = 0;//fitness score
 
+	//explosion detector!
+	this.touching = false;
+
 	//adding force
 	this.applyForce = function(force) {
 		this.acceleration.add(force);
 	}
 	//applying physics
 	this.update = function() {
-		this.velocity.add(this.acceleration);
-		this.position.add(this.velocity);
-		this.acceleration.mult(0);
+		var location = dist(this.position.x, this.position.y, target.x, target.y);
+		//stop the rocket if we hit the target
+		if (location < 1) {//within the box range
+			this.touching = true;
+			this.position = target.copy();//setting the rocket at the target
+		}
+
 		//apply vectors
-		this.applyForce(this.dna.genes[count]);
+		this.applyForce(this.dna.genes[count]);	
+		//check if we hit target
+		if (!this.touching) {//if not, apply movement
+			this.velocity.add(this.acceleration);
+			this.position.add(this.velocity);
+			this.acceleration.mult(0);
+		}
+
+		if (this.touching) {
+			this.fitness *= 500;
+		}
 
 	}
 
@@ -129,6 +150,8 @@ function Population() {
 			}			
 			
 		}
+	generationCnt++;
+	console.log(generationCnt);
 	}
 
 	//run population
