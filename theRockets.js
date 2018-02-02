@@ -1,11 +1,19 @@
 var rocket;
 var rocketLifeSpan = 200;
-var numRockets = 100
+var numRockets = 100;
+//population life
+var lifeP;
+//rocket count
+var count = 0;
+//the thing we want to hit
+var target;
+
 function setup() {
 	createCanvas(400, 300);
 	rocket = new Rocket();
 	population = new Population();
-
+	lifeP = createP();//paragraph ele
+	target = createVector(width/2, 50);//middle of the window at the top
 }
 
 function draw() {
@@ -13,6 +21,12 @@ function draw() {
 	rocket.update();
 	rocket.show();
 	population.run();
+	//count of each generation
+	lifeP.html(count);
+	count++;
+
+	//drawing the target to hit
+	ellipse(target.x, target.y, 16, 16);
 
 }
 
@@ -23,7 +37,6 @@ function Rocket() {
 	this.velocity = createVector();// no velocity
 	this.acceleration = createVector();//no acceleration
 	this.dna = new DNA();
-	this.count = 0;
 
 	//adding force
 	this.applyForce = function(force) {
@@ -35,8 +48,8 @@ function Rocket() {
 		this.position.add(this.velocity);
 		this.acceleration.mult(0);
 		//apply vectors
-		this.applyForce(this.dna.genes[this.count]);
-		this.count++;
+		this.applyForce(this.dna.genes[count]);
+
 	}
 
 	this.show = function() {
@@ -73,5 +86,6 @@ function DNA() {
 	this.genes = [];
 	for (var i = 0; i < rocketLifeSpan; i++) {
 		this.genes[i] = p5.Vector.random2D();//random vector
+		this.genes[i].setMag(.1);
 	}
 }
