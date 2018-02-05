@@ -1,26 +1,28 @@
 var rocket;
-var rocketLifeSpan = 100;//number of frames
-var numRockets = 1000;
-var inherentSpeed = 0.1;
-var rocketAcceleration = 1;
+var rocketLifeSpan = 200;//number of frames
+var numRockets = 100;
+var inherentSpeed = 0.8;
+var rocketAcceleration = 0;
 //population life
-var lifeP;
+var lifePopDisp;
 //rocket count
 var count = 0;
 //the thing we want to hit
 var target;
 //genearation counter
 var generationCnt = 0;
+var generationDisp;
 //obstacle dimensions
 var obstacleX,obstacleY,obstacleW,obstacleH;
-obstacleX = 100;obstacleY = 150;obstacleW = 200;obstacleH = 10;
+obstacleX = (400/5);obstacleY = 150;obstacleW = 100;obstacleH = 5;
 
 function setup() {
 	createCanvas(400, 300);
 	rocket = new Rocket();
 	population = new Population();
-	lifeP = createP();//paragraph ele
-	target = createVector(width/2, 35);//middle of the window at the top
+	lifePopDisp = createP();//paragraph ele
+	target = createVector(width/5, 35);//middle of the window at the top
+	generationDisp = createP();
 }
 
 function draw() {
@@ -28,8 +30,10 @@ function draw() {
 	rocket.update();
 	rocket.show();
 	population.run();
+	generationDisp.html("generation number: " + generationCnt);
 	//count of each generation
-	lifeP.html(count);//displays each rocket count
+	lifePopDisp.html(count);//displays each rocket count
+	
 	count++;
 
 	if (count == rocketLifeSpan) {
@@ -64,6 +68,8 @@ function Rocket(dna) {
 	this.touching = false;
 	//collision detector
 	this.collision = false;
+	this.obstacle = false;
+	this.border = false;
 
 	//adding force
 	this.applyForce = function(force) {
@@ -73,7 +79,7 @@ function Rocket(dna) {
 	this.update = function() {
 		var location = dist(this.position.x, this.position.y, target.x, target.y);
 		//stop the rocket if we hit the target
-		if (location < 16) {//within the box range
+		if (location < 25) {//within the box range
 			this.touching = true;
 			this.position = target.copy();//setting the rocket at the target
 		}
@@ -89,10 +95,15 @@ function Rocket(dna) {
 		}
 		//just rewarding the fit rockets
 		if (this.touching) {
-			this.fitness *= 50000;//boost fitness scores
+			this.fitness *= 100;//boost fitness scores
 		}
 		if (this.collision) {
-			this.fitness /= 10;
+			if (this.border) {
+				this.fitness /= 100;
+			} else if (this.obstacle) {
+				this.fitness /= 50;
+			}
+			
 		}
 
 		//hitting obstacle is bad aka crashing
@@ -100,11 +111,13 @@ function Rocket(dna) {
 			&& this.position.y > obstacleY && this.position.y < obstacleY + obstacleH/**height of obstacle**/
 			) {
 			this.collision = true;
+			this.obstacle = true;
 		}
 		//window collision detection
 		if ((this.position.x > width || this.position.x < 0) ||/**width**/
 			(this.position.y > height || this.position.y < 0)) {/**height**/
 			this.collision = true;
+			this.border = true;
 		}
 
 	}
