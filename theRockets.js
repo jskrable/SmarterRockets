@@ -1,8 +1,8 @@
 var rocket;
-var rocketLifeSpan = 200;//number of frames
+var rocketLifeSpan = 500;//number of frames
 var numRockets = 50;
-var inherentSpeed = 0.2;
-var rocketAcceleration = 0.5;
+var inherentSpeed = 0.3;
+var rocketAcceleration = 0.3;
 //population life
 var lifePopDisp;
 //rocket count
@@ -12,10 +12,14 @@ var target;
 //genearation counter
 var generationCnt = 0;
 var generationDisp;
+//canvas dimensions
+var canvasX,canvasY;
+canvasX = 1200;canvasY = 800;
 //obstacle dimensions
 var obstacleX,obstacleY,obstacleW,obstacleH;
-obstacleX = (100);obstacleY = 150;obstacleW = 200;obstacleH = 10;
-
+obstacleX = (canvasX/3);obstacleY = canvasY/2;obstacleW = canvasX/3;obstacleH = 10;
+//mutation rate
+var mutationRate = 0.1
 // function startTime() {
 // 	sysStartTime = new Date();
 // 	return (sysStartTime);
@@ -34,11 +38,11 @@ obstacleX = (100);obstacleY = 150;obstacleW = 200;obstacleH = 10;
 
 
 function setup() {
-	createCanvas(400, 300);
+	createCanvas(canvasX, canvasY);
 	rocket = new Rocket();
 	population = new Population();
 	lifePopDisp = createP();//paragraph ele
-	target = createVector(width/2, 35);//middle of the window at the top
+	target = createVector(width/2, 30);//middle of the window at the top
 	generationDisp = createP();
 }
 
@@ -49,11 +53,11 @@ function draw() {
 	population.run();
 	generationDisp.html("generation number: " + generationCnt);	//count of each generation
 	lifePopDisp.html(count);//displays each rocket count
-	
+
 	count++;
 
 	if (count == rocketLifeSpan) {
-		//make 
+		//make
 		population.eval();
 		population.natSelection();
 		count = 0;//reset val
@@ -62,7 +66,7 @@ function draw() {
 	//obstacle creation
 	rect(obstacleX, obstacleY, obstacleW, obstacleH);
 	//drawing the target to hit
-	rect(target.x, target.y, 16, 16);
+	ellipse(target.x, target.y, 16, 16);
 
 
 }
@@ -108,7 +112,7 @@ function Rocket(dna) {
 		}
 
 		//apply vectors
-		this.applyForce(this.dna.genes[count]);	
+		this.applyForce(this.dna.genes[count]);
 		//check if we hit target
 		if (!this.touching && !this.collision) {//if not, apply movement
 			this.velocity.add(this.acceleration);
@@ -140,8 +144,8 @@ function Rocket(dna) {
 		push();
 		translate(this.position.x, this.position.y);
 		rotate(this.velocity.heading());//angle adjustments
-		rectMode(CENTER);
-		rect(15, 15, 5, 5);//draw the rocket
+		//rectMode(CENTER);
+		rect(15, 15, 15, 5);//draw the rocket
 		pop();
 	}
 	//genetic algo p1.2
@@ -167,13 +171,13 @@ function Rocket(dna) {
 		}
 		if (this.collision) {
 			if (this.border) {
-				this.fitness /= 100;
+				this.fitness /= 75;
 			} else if (this.obstacle) {
-				this.fitness /= 5;
+				this.fitness /= 50;
 			}
-			
+
 		}
-		
+
 	}
 }
 
@@ -197,9 +201,9 @@ function Population() {
 
 			//set the max fitness if it is the max
 			if (this.rockets[r].fitness > 0) {
-				maximumFitness = this.rockets[r].fitness	
+				maximumFitness = this.rockets[r].fitness
 			}
-			
+
 		}
 		//genetic algo p1.1
 		//go through each rocket
@@ -207,8 +211,8 @@ function Population() {
 		for (var r = 0; r < this.populationSize; r++) {
 			if (maximumFitness != 0) {
 				this.rockets[r].fitness /= maximumFitness;
-			}			
-			
+			}
+
 		}
 		//genetic algo p2
 
@@ -219,9 +223,9 @@ function Population() {
 				//add values to the mating pool
 				for (var s = 0; s < n; s++) {
 					this.matingPool.push(this.rockets[r]);
-				}				
-			}			
-			
+				}
+			}
+
 		}
 	generationCnt++;//update the generation counter
 	}
@@ -245,7 +249,7 @@ function Population() {
 			babyRockets[i] = new Rocket(child);//new rocket is born
 		}
 		this.rockets = babyRockets;//we have a new generation set
-	}	
+	}
 }
 
 //DNA Object
@@ -280,12 +284,11 @@ function DNA(genes) {
 	//allows for some variability rather than just the first generation genes
 	this.mutation = function() {
 		for (var i = 0; i < this.genes.length; i++) {
-			if (random(1) < 0.01) {//random number with mutation rate of 1%
+			if (random(1) < mutationRate) {//random number with mutation rate of 1%
 				this.genes[i] = p5.Vector.random2D();//becomes new Random vector
 				this.genes[i].setMag(0.1); //length of vector
 			}
-			
+
 		}
 	}
 }
-
