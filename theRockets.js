@@ -85,6 +85,7 @@ function Rocket(dna) {
 			this.velocity.add(this.acceleration);
 			this.position.add(this.velocity);
 			this.acceleration.mult(rocketAcceleration);
+			this.velocity.limit(4);//so the rockets don't go too crazy
 		}
 		//just rewarding the fit rockets
 		if (this.touching) {
