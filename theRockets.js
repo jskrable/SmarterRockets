@@ -1,7 +1,7 @@
 var rocket;
-var rocketLifeSpan = 400;//number of frames
-var numRockets = 500;
-var inherentSpeed = 0.1;
+var rocketLifeSpan = 200;//number of frames
+var numRockets = 50;
+var inherentSpeed = 0.2;
 var rocketAcceleration = 0.5;
 //population life
 var lifePopDisp;
@@ -47,8 +47,7 @@ function draw() {
 	rocket.update();
 	rocket.show();
 	population.run();
-	generationDisp.html("generation number: " + generationCnt);
-	//count of each generation
+	generationDisp.html("generation number: " + generationCnt);	//count of each generation
 	lifePopDisp.html(count);//displays each rocket count
 	
 	count++;
@@ -100,7 +99,7 @@ function Rocket(dna) {
 		sysStartTime = new Date();
 		var location = dist(this.position.x, this.position.y, target.x, target.y);
 		//stop the rocket if we hit the target
-		if (location < 5) {//within the box range
+		if (location < 16) {//within the box range
 			this.touching = true;
 			this.position = target.copy();//setting the rocket at the target
 			sysEndTime = new Date();
