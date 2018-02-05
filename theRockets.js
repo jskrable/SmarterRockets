@@ -1,8 +1,8 @@
 var rocket;
-var rocketLifeSpan = 200;//number of frames
-var numRockets = 100;
-var inherentSpeed = 0.8;
-var rocketAcceleration = 0;
+var rocketLifeSpan = 400;//number of frames
+var numRockets = 500;
+var inherentSpeed = 0.1;
+var rocketAcceleration = 0.5;
 //population life
 var lifePopDisp;
 //rocket count
@@ -142,7 +142,7 @@ function Rocket(dna) {
 		translate(this.position.x, this.position.y);
 		rotate(this.velocity.heading());//angle adjustments
 		rectMode(CENTER);
-		rect(5, 5, 5, 5);//draw the rocket
+		rect(15, 15, 5, 5);//draw the rocket
 		pop();
 	}
 	//genetic algo p1.2
@@ -156,13 +156,13 @@ function Rocket(dna) {
 		//just rewarding the fit rockets
 		if (this.touching) {
 			this.fitness *= 10;//boost fitness scores
-			if (this.elapsedTime < 900) {
+			if (this.elapsedTime < 2000) {
 				this.fitness *= (10^3);//boost fitness scores
-			} else if (this.elapsedTime < 500) {
+			} else if (this.elapsedTime < 1000) {
 				this.fitness *= (10^4);//boost fitness scores
-			} else if (this.elapsedTime < 100) {
+			} else if (this.elapsedTime < 500) {
 				this.fitness *= (10^5);//boost fitness scores
-			} else if (this.elapsedTime < 50) {
+			} else if (this.elapsedTime < 100) {
 				this.fitness *= (10^6);//boost fitness scores
 			}
 		}
@@ -174,7 +174,7 @@ function Rocket(dna) {
 			}
 			
 		}
-		//TODO add in time it takes to get to target
+		
 	}
 }
 
