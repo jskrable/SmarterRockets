@@ -14,7 +14,24 @@ var generationCnt = 0;
 var generationDisp;
 //obstacle dimensions
 var obstacleX,obstacleY,obstacleW,obstacleH;
-obstacleX = (400/5);obstacleY = 150;obstacleW = 100;obstacleH = 5;
+obstacleX = (100);obstacleY = 150;obstacleW = 200;obstacleH = 10;
+
+// function startTime() {
+// 	sysStartTime = new Date();
+// 	return (sysStartTime);
+// }
+
+// function endTime() {
+// 	sysEndTime = new Date();
+// 	return (sysEndTime);
+// }
+
+// function elapsedTime(start, end) {
+// 	var sysElapsedTime;
+// 	sysElapsedTime = start - end;
+// 	return (sysElapsedTime);
+// }
+
 
 function setup() {
 	createCanvas(400, 300);
@@ -79,9 +96,10 @@ function Rocket(dna) {
 	this.update = function() {
 		var location = dist(this.position.x, this.position.y, target.x, target.y);
 		//stop the rocket if we hit the target
-		if (location < 25) {//within the box range
+		if (location < 5) {//within the box range
 			this.touching = true;
 			this.position = target.copy();//setting the rocket at the target
+
 		}
 
 		//apply vectors
@@ -93,19 +111,6 @@ function Rocket(dna) {
 			this.acceleration.mult(rocketAcceleration);
 			this.velocity.limit(4);//so the rockets don't go too crazy
 		}
-		//just rewarding the fit rockets
-		if (this.touching) {
-			this.fitness *= 100;//boost fitness scores
-		}
-		if (this.collision) {
-			if (this.border) {
-				this.fitness /= 100;
-			} else if (this.obstacle) {
-				this.fitness /= 50;
-			}
-			
-		}
-
 		//hitting obstacle is bad aka crashing
 		if (this.position.x > obstacleX && this.position.x < obstacleX + obstacleW/**width of obstacle**/
 			&& this.position.y > obstacleY && this.position.y < obstacleY + obstacleH/**height of obstacle**/
@@ -138,7 +143,18 @@ function Rocket(dna) {
 		//1 == best fitness score possible i.e. we hit the target
 		// this.fitness = (1 / distance);
 		this.fitness = map(distance, 0, width, width, 0);//mapping the distance, inverted distance val
-
+		//just rewarding the fit rockets
+		if (this.touching) {
+			this.fitness *= 10;//boost fitness scores
+		}
+		if (this.collision) {
+			if (this.border) {
+				this.fitness /= 10;
+			} else if (this.obstacle) {
+				this.fitness /= 5;
+			}
+			
+		}
 		//TODO add in time it takes to get to target
 	}
 }
@@ -189,8 +205,7 @@ function Population() {
 			}			
 			
 		}
-	generationCnt++;
-	console.log(generationCnt);
+	generationCnt++;//update the generation counter
 	}
 
 	//run population
