@@ -38,7 +38,7 @@ function setup() {
 	rocket = new Rocket();
 	population = new Population();
 	lifePopDisp = createP();//paragraph ele
-	target = createVector(width/5, 35);//middle of the window at the top
+	target = createVector(width/2, 35);//middle of the window at the top
 	generationDisp = createP();
 }
 
@@ -88,18 +88,24 @@ function Rocket(dna) {
 	this.obstacle = false;
 	this.border = false;
 
+	//time to target/aka overall velocity
+	this.elapsedTime = 0;
+
 	//adding force
 	this.applyForce = function(force) {
 		this.acceleration.add(force);
 	}
 	//applying physics
 	this.update = function() {
+		sysStartTime = new Date();
 		var location = dist(this.position.x, this.position.y, target.x, target.y);
 		//stop the rocket if we hit the target
 		if (location < 5) {//within the box range
 			this.touching = true;
 			this.position = target.copy();//setting the rocket at the target
-
+			sysEndTime = new Date();
+			this.elapsedTime = sysEndTime - sysStartTime;
+			// console.log(elapsedTime);
 		}
 
 		//apply vectors
@@ -117,12 +123,16 @@ function Rocket(dna) {
 			) {
 			this.collision = true;
 			this.obstacle = true;
+			sysEndTime = new Date();
+			this.elapsedTime = sysEndTime - sysStartTime;
 		}
 		//window collision detection
 		if ((this.position.x > width || this.position.x < 0) ||/**width**/
 			(this.position.y > height || this.position.y < 0)) {/**height**/
 			this.collision = true;
 			this.border = true;
+			sysEndTime = new Date();
+			this.elapsedTime = sysEndTime - sysStartTime;
 		}
 
 	}
@@ -146,10 +156,19 @@ function Rocket(dna) {
 		//just rewarding the fit rockets
 		if (this.touching) {
 			this.fitness *= 10;//boost fitness scores
+			if (this.elapsedTime < 900) {
+				this.fitness *= (10^3);//boost fitness scores
+			} else if (this.elapsedTime < 500) {
+				this.fitness *= (10^4);//boost fitness scores
+			} else if (this.elapsedTime < 100) {
+				this.fitness *= (10^5);//boost fitness scores
+			} else if (this.elapsedTime < 50) {
+				this.fitness *= (10^6);//boost fitness scores
+			}
 		}
 		if (this.collision) {
 			if (this.border) {
-				this.fitness /= 10;
+				this.fitness /= 100;
 			} else if (this.obstacle) {
 				this.fitness /= 5;
 			}
